@@ -38,6 +38,7 @@ def set_config(config_file, base_dir):
 
 def main():
     args = parse_arguments()
+    os.system("mkdir -p {}".format(args.data_dir))
     local_file = download(args.data_url, args.data_dir)
     base_dir = unzip(local_file)
     set_config("../config/gtsrb.json", base_dir)
