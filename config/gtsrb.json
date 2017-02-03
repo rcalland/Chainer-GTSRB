@@ -1,0 +1,1 @@
+{"train_mean": 80.205184921287994, "train_annotation": "/mnt/sakuradata2/calland/software/traffic-sign-detector/annotations/GTSRB_training.txt", "validation_annotation": "/mnt/sakuradata2/calland/software/traffic-sign-detector/annotations/GTSRB_validation.txt", "validation_mean": 82.260636013388904, "weight_decay": 1.0E-2, "batchsize": 64, "num_classes": 43, "size": 32}
