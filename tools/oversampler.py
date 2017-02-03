@@ -40,6 +40,8 @@ def get_class(path):
 
 def fetch_list(base_dir):
     print("collecting images...")
+    base_dir = os.path.join(base_dir, "GTSRB/Final_Training/Images")
+
     sample_list = []
     label_list = []
     print(base_dir)
@@ -80,9 +82,10 @@ def upsample(freq, sample_list, label_list):
 
     # perform sampling
     for i, (spl, lbl) in enumerate(zip(sample_list, label_list)):
-        print("{} / {}".format(i, total_files))
+        if i % 1000 is 0:
+            print("{} / {}".format(i, total_files))
         num_augmentations = maxsamples - freq[lbl]
-        num_augmentations = math.ceil(num_augmentations / float(freq[lbl]))
+        num_augmentations = int(math.ceil(num_augmentations / float(freq[lbl])))
         make_augmentations(spl, num_augmentations)
     print("done.")
 
@@ -92,7 +95,7 @@ def main():
     #parser.add_argument("--balanced", type=bool, default=False)
     args = parser.parse_args()
 
-    if base_dir is None:
+    if args.base_dir is None:
         cfg = load_config("../config/gtsrb.json")
         args.base_dir = cfg["data_root_path"]
 
