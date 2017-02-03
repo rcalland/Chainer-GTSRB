@@ -1,5 +1,5 @@
 import json
-from train import load_config
+from utils import load_config
 from skimage import io
 import numpy as np
 

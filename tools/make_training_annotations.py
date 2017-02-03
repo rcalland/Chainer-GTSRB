@@ -1,6 +1,7 @@
 import os
 import random
 import fnmatch
+from utils import load_config
 
 def write(array, name):
     with open(name, "w+") as f:
@@ -44,6 +45,7 @@ def generate_annotations(base_directory, output_file_root, train_file, val_file)
 
         for tracks in track_batch:
             if tracks[1] is val_track_id:
+                # dont use the oversampled tracks in the validation
                 if not fnmatch.fnmatch(tracks[0], "oversampled"):
                     validation.append(tracks[0])
             else:
@@ -54,7 +56,9 @@ def generate_annotations(base_directory, output_file_root, train_file, val_file)
 
 
 def main():
-    generate_annotations("/mnt/sakuradata2/datasets/GTSRB/Final_Training/Images", "/mnt/sakuradata2/calland/software/traffic-sign-detector/annotations", "GTSRB_training.txt", "GTSRB_validation.txt")
+    cfg = load_config("../config/gtsrb.json")
+
+    generate_annotations("{}/GTSRB/Final_Training/Images".format(cfg["data_root_path"]), "..//annotations", "GTSRB_training.txt", "GTSRB_validation.txt")
 
 if __name__=="__main__":
     main()
