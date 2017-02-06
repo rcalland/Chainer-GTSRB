@@ -1,5 +1,5 @@
 # chainer-GTSRB
-Traffic sign classification on [GTSRB dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=about) using [Chainer](http://chainer.org/).
+Traffic sign classification on [GTSRB dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=about) using [Chainer](http://chainer.org/). The model closely follows [this paper](http://yann.lecun.com/exdb/publis/pdf/sermanet-ijcnn-11.pdf).
 
 ## Setup
 If you want to get going fast, just do `cd tools; source deploy.sh $DATA_PATH` to get everything done. If you need to tweak any of the data processing steps, follow below.
