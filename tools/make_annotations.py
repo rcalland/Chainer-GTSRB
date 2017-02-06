@@ -63,7 +63,7 @@ def generate_test_annotations(csv_file_in, img_directory, txt_file_out):
         next(reader) # skip the first line
         for row in reader:
             line = "{} {}\n".format(os.path.join(img_directory, row[0]), row[-1])
-            #print line
+            annotation.append(line)
 
     write(annotation, txt_file_out)
 
@@ -71,7 +71,7 @@ def main():
     cfg = load_config("../config/gtsrb.json")
 
     generate_annotations("{}/GTSRB/Final_Training/Images".format(cfg["data_root_path"]), "..//annotations", "GTSRB_training.txt", "GTSRB_validation.txt")
-    generate_test_annotations("{}/GT-final_test.csv".format(cfg["data_root_path"]), "{}/GTSRB/Final_Test/Images".format(cfg["data_root_path"]), "../GTSRB_test.txt")
+    generate_test_annotations("{}/GT-final_test.csv".format(cfg["data_root_path"]), "{}/GTSRB/Final_Test/Images".format(cfg["data_root_path"]), "../annotations/GTSRB_test.txt")
 
 if __name__=="__main__":
     main()
