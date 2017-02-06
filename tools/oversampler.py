@@ -13,12 +13,18 @@ from utils import load_config
 
 def make_augmentations(img_path, num_copies):
     # taken from http://docs.opencv.org/trunk/da/d6e/tutorial_py_geometric_transformations.html
+   
+    pixel_jitter = 4
+    rotate_degrees = 25
+    scale_min = 0.8
+    scale_max = 1.2
+
     img = cv2.imread(img_path)
     for i in range(num_copies):
-        scale_factor = random.uniform(0.9, 1.1)
-        rotate_factor = random.uniform(-15, 15)
-        transx_factor = random.randint(-2, 2)
-        transy_factor = random.randint(-2, 2)
+        scale_factor = random.uniform(scale_min, scale_max)
+        rotate_factor = random.uniform(-rotate_degrees, rotate_degrees)
+        transx_factor = random.randint(-pixel_jitter, pixel_jitter)
+        transy_factor = random.randint(-pixel_jitter, pixel_jitter)
         rows,cols,ch = img.shape
         M = cv2.getRotationMatrix2D((cols/2,rows/2), rotate_factor, scale_factor)
         M[0][2] += transx_factor
@@ -71,7 +77,7 @@ def fetch_list(base_dir):
 def class_frequency(labels):
     return collections.OrderedDict(collections.Counter(labels))
 
-def upsample(freq, sample_list, label_list):
+def upsample(freq, sample_list, label_list, global_scale=0):
     print("beginning upsampling...")
     # get the class with the most samples
     maxkey = max(freq.iteritems(), key=operator.itemgetter(1))[0]
@@ -85,7 +91,7 @@ def upsample(freq, sample_list, label_list):
         if i % 1000 is 0:
             print("{} / {}".format(i, total_files))
         num_augmentations = maxsamples - freq[lbl]
-        num_augmentations = int(math.ceil(num_augmentations / float(freq[lbl])))
+        num_augmentations = int(math.ceil(num_augmentations / float(freq[lbl]))) + int(maxsamples * global_scale)
         make_augmentations(spl, num_augmentations)
     print("done.")
 
@@ -102,7 +108,8 @@ def main():
     sample_list, label_list = fetch_list(args.base_dir)
     freq = class_frequency(label_list)
     
-    upsample(freq, sample_list, label_list)
+    # global_scale increases all class samples by %
+    upsample(freq, sample_list, label_list, 0.0)
 
 if __name__=="__main__":
     main()

@@ -68,6 +68,7 @@ def generate_test_annotations(csv_file_in, img_directory, txt_file_out):
     write(annotation, txt_file_out)
 
 def main():
+    print "Generating annotations..."
     cfg = load_config("../config/gtsrb.json")
 
     annotations_path = os.path.join(os.path.dirname(os.getcwd()), "annotations")
@@ -81,6 +82,7 @@ def main():
     cfg["test_annotation"] = os.path.join(annotations_path, "GTSRB_test.txt")
 
     save_config("../config/gtsrb.json", cfg)
+    print "Done."
 
 if __name__=="__main__":
     main()

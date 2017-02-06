@@ -20,8 +20,8 @@ class network(chainer.Chain):
         self.train = True
 
     def __call__(self, x):
-        #dropout_ratio = [0.1, 0.2, 0.3, 0.5]
-        dropout_ratio = [0.0, 0.0, 0.0, 0.5]
+        dropout_ratio = [0.1, 0.2, 0.3, 0.5]
+        #dropout_ratio = [0.0, 0.0, 0.0, 0.5]
         #dropout_ratio = [0.0, 0.0, 0.0, 0.0]
 
         # conv layers

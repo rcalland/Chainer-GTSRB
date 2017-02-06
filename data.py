@@ -28,11 +28,12 @@ class FlexibleImageDataset(chainer.datasets.LabeledImageDataset):
         else:
             return numpy.array(weights, "float32")
 
-    def summary(self):
+    def summary(self, freq=False):
         print "Dataset contains {} entries".format(len(self._pairs))
         classes = [x[1] for x in self._pairs]
         print "Number of classes: {}".format(len(set(classes)))
-        print collections.OrderedDict(collections.Counter(classes))
+        if freq:
+            print collections.OrderedDict(collections.Counter(classes))
 
     def get_example(self, i):
         path, int_label = self._pairs[i]
@@ -60,7 +61,4 @@ class FlexibleImageDataset(chainer.datasets.LabeledImageDataset):
         image -= self.mean
         if self.normalize:
             image /= 255.0
-            #print label
-            #image = image[:,:,:1]
-        #print image
         return image, label

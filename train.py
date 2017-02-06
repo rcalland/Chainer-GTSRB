@@ -1,7 +1,10 @@
+from __future__ import print_function
+
 from network import network
 from data import FlexibleImageDataset
 
 import json
+import argparse
 import os
 import time
 import numpy as np
@@ -25,10 +28,17 @@ class TestModeEvaluator(extensions.Evaluator):
         return ret
 
 def main():
-    config = load_config("config/gtsrb.json")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", "-o", type=str, required=True)
+    parser.add_argument("--config", "-c", type=str, default="config/gtsrb.json")
+    parser.add_argument("--gpu", "-g", type=int, default=-1)
+    parser.add_argument("--resume", "-r", type=str, default=None)
+    args = parser.parse_args()
+
+    config = load_config(args.config)
 
     # put these as arguments
-    gpu_id = 0
+    gpu_id = args.gpu
     num_epochs = 500
     multiprocess_iterator = True
     n_processes = 4 # only valid if the above is true
@@ -36,7 +46,7 @@ def main():
     batchsize = config["batchsize"]
     data_annotations = config["train_annotation"]
     val_annotations = config["validation_annotation"]
-    output_directory = "/mnt/sakuradata2/calland/scratch/gtsrb/test"
+    output_directory = args.output
     os.system("mkdir -p {}".format(output_directory))
 
     if gpu_id >= 0:
@@ -46,7 +56,9 @@ def main():
     size = (config["size"], config["size"])
     training_data = FlexibleImageDataset(data_annotations, mean=config["train_mean"], size=size)
     validation_data = FlexibleImageDataset(val_annotations, mean=config["validation_mean"], size=size)
-    #training_data.summary()
+    
+    # print a summary of the dataset
+    training_data.summary()
 
     weights = training_data.get_class_weights(gpu_id)
 
@@ -63,6 +75,7 @@ def main():
     optimizer.setup(model)
 
     if config["weight_decay"] > 0.0:
+        print("Weight decay: {}".format(config["weight_decay"]))
         optimizer.add_hook(chainer.optimizer.WeightDecay(config["weight_decay"]))
 
     if multiprocess_iterator:
@@ -80,13 +93,12 @@ def main():
 
     val_interval = 1, 'epoch'
 
-    # Evaluate the model with the test dataset for each epoch
+    # Evaluate the model with the test dataset for each epoch. Use a custom "tester" defined above, that 
+    # turns off dropout
     trainer.extend(TestModeEvaluator(test_iter, model,
                                      device=gpu_id), trigger=val_interval)
-    #trainer.extend(extensions.Evaluator(test_iter, model, device=gpu_id))
-
+   
     # Dump a computational graph from 'loss' variable at the first iteration
-    # The "main" refers to the target link of the "main" optimizer.
     trainer.extend(extensions.dump_graph('main/loss'))
 
     # Take a snapshot at each epoch
@@ -104,9 +116,9 @@ def main():
     # Print a progress bar to stdout
     trainer.extend(extensions.ProgressBar(update_interval=100))
 
-    #if args.resume:
+    if args.resume:
         # Resume from a snapshot
-        #chainer.serializers.load_npz(args.resume, trainer)
+        chainer.serializers.load_npz(args.resume, trainer)
 
     # Run the training
     trainer.run()
