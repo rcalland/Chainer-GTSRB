@@ -13,7 +13,7 @@ where `$DATA_PATH` is the path where you would like to download the data files t
 ### Preprocess data
 Please move into the tools directory before running these scripts.
 ```
-cd tools
+$ cd tools
 $ python oversampler.py
 $ python make_annotations.py
 $ python generate_means.py
@@ -21,9 +21,9 @@ $ python generate_means.py
 
 ### Training & Detection
 ```
-$ python train.py
+$ python train.py --output /path/to/output --epoch <n> --gpu 0
 ```
-
+followed by
 ```
 $ python detect.py
 ```
