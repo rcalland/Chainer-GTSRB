@@ -11,6 +11,19 @@ $ python tools/setup_dataset.py -o $DATA_PATH
 where `$DATA_PATH` is the path where you would like to download the data files to. The directory will be created if it doesn't already exist. You can specify the URL using the optional `-i` flag.
 
 ### Preprocess data
+Please move into the tools directory before running these scripts.
 ```
-$ python tools/oversampler.py
+cd tools
+$ python oversampler.py
+$ python make_annotations.py
+$ python generate_means.py
+```
+
+### Training & Detection
+```
+$ python train.py
+```
+
+```
+$ python detect.py
 ```
