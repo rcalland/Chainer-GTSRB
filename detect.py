@@ -94,17 +94,17 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 def main():
-    config = load_config("../config/gtsrb.json")
+    config = load_config("config/gtsrb.json")
     imgsize = (config["size"], config["size"])
 
     num_classes = config["num_classes"]
-    model = L.Classifier(network(1024, num_classes))
+    model = L.Classifier(network(config["fc_size"], num_classes))
     serializers.load_npz("/mnt/sakuradata2/calland/scratch/gtsrb/oversampled/model_epoch_20", model)
     model.predictor.train = False
     
-    #model.to_gpu()
+    model.to_gpu()
 
-    val_annotations = config["validation_annotation"]
+    val_annotations = config["test_annotation"]
     validation_data = FlexibleImageDataset(val_annotations, mean=config["validation_mean"], size=imgsize, normalize=True)
     validation_data.summary()
 
@@ -117,32 +117,39 @@ def main():
     
     lbl_pred = []
     lbl_true = []
+    correct = []
 
-    #matrix = numpy.zeros((num_classes, num_classes))
     class_names = [str(i) for i in range(num_classes)]
 
     for i in range(len(validation_data._pairs)):
         if i % 100 == 0:
             print "{} / {}".format(i, len(validation_data._pairs) )
 
-        #print validation_data._pairs[i][0]
         data = validation_data.get_example(i)
-        arr = numpy.array([data[0]])
+        arr = cuda.cupy.array([data[0]])
         lbl = numpy.array([data[1]])
 
-        #print data[0].dtype
-        #print arr.shape
-        #print model.predictor.shape
         ret = model.predictor(arr)
-        #print ret.data
         ret = F.softmax(ret)
-        #print ret.data
-        
-        lbl_true.append(lbl.tolist()[0])
-        lbl_pred.append(numpy.argmax(ret.data))
-        #matrix[true, recon] += 1
+        ret.to_cpu()
 
-        #matrix = normalize_confusion_matrix(matrix)
+        true_label = lbl.tolist()[0]
+        recon_label = numpy.argmax(ret.data)
+
+        #print true_label, recon_label
+
+        lbl_true.append(true_label)
+        lbl_pred.append(recon_label)
+        
+        if true_label == recon_label:
+            correct.append(True)
+        else:
+            correct.append(False)
+
+    # calculate accuracy
+    num_correct = sum(bool(x) for x in correct)
+    accuracy = 100.0 * (num_correct / float(len(correct)))
+    print "Accuracy: {}%".format(accuracy)
 
     # Compute confusion matrix
     cnf_matrix = confusion_matrix(lbl_true, lbl_pred)
@@ -153,10 +160,6 @@ def main():
     plot_confusion_matrix(cnf_matrix, classes=class_names, normalize=True,
                       title='Normalized confusion matrix')
     plt.show()
-
-    #plt.matshow(matrix, fignum=100, cmap=plt.cm.Blues)
-    #plt.show()
-
 
 if __name__=="__main__":
     main()
