@@ -33,13 +33,14 @@ def main():
     parser.add_argument("--config", "-c", type=str, default="config/gtsrb.json")
     parser.add_argument("--gpu", "-g", type=int, default=-1)
     parser.add_argument("--resume", "-r", type=str, default=None)
+    parser.add_argument("--epoch", "-e", type=int, default=100)
     args = parser.parse_args()
 
     config = load_config(args.config)
 
     # put these as arguments
     gpu_id = args.gpu
-    num_epochs = 500
+    num_epochs = args.epoch
     multiprocess_iterator = True
     n_processes = 4 # only valid if the above is true
     num_classes = config["num_classes"]
