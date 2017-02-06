@@ -17,13 +17,16 @@ class FlexibleImageDataset(chainer.datasets.LabeledImageDataset):
         self.normalize = normalize
         self.size = size
 
-    def get_class_weights(self):
+    def get_class_weights(self, gpu_id=-1):
         classes = [x[1] for x in self._pairs]
         collect = collections.Counter(classes)
         weights = [float(item[1]) for item in collect.iteritems()]
         total = sum(weights)
         weights[:] = [ 1.0 - (x / total) for x in weights]
-        return cupy.array(weights, "float32")
+        if gpu_id >= 0:
+            return cupy.array(weights, "float32")
+        else:
+            return numpy.array(weights, "float32")
 
     def summary(self):
         print "Dataset contains {} entries".format(len(self._pairs))

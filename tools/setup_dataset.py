@@ -10,6 +10,7 @@ gtsrb_test_url = "http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Test_Images.zi
 gtsrb_test_annotations_url = "http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Test_GT.zip"
 
 def download(url, local_path):
+    # download training data
     response = requests.get(url, stream=True)
     local_path = os.path.join(local_path, os.path.basename(url))
     with open(local_path, "wb") as handle:
@@ -39,9 +40,21 @@ def set_config(config_file, base_dir):
 def main():
     args = parse_arguments()
     os.system("mkdir -p {}".format(args.data_dir))
+
+    # training data
     local_file = download(args.data_url, args.data_dir)
     base_dir = unzip(local_file)
-    set_config("../config/gtsrb.json", base_dir)
+
+    # test data
+    local_file = download(gtsrb_test_url, args.data_dir)
+    base_dir = unzip(local_file)
+
+    # test data annotations
+    local_file = download(gtsrb_test_annotations_url, args.data_dir)
+    base_dir = unzip(local_file)
     
+    # update config file
+    set_config("../config/gtsrb.json", base_dir)
+
 if __name__=="__main__":
     main()
