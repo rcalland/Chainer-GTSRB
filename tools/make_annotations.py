@@ -2,7 +2,7 @@ import os
 import random
 import csv
 import fnmatch
-from utils import load_config
+from utils import load_config, save_config
 
 def write(array, name):
     with open(name, "w+") as f:
@@ -70,8 +70,17 @@ def generate_test_annotations(csv_file_in, img_directory, txt_file_out):
 def main():
     cfg = load_config("../config/gtsrb.json")
 
-    generate_annotations("{}/GTSRB/Final_Training/Images".format(cfg["data_root_path"]), "..//annotations", "GTSRB_training.txt", "GTSRB_validation.txt")
-    generate_test_annotations("{}/GT-final_test.csv".format(cfg["data_root_path"]), "{}/GTSRB/Final_Test/Images".format(cfg["data_root_path"]), "../annotations/GTSRB_test.txt")
+    annotations_path = os.path.join(os.path.dirname(os.getcwd()), "annotations")
+
+    generate_annotations("{}/GTSRB/Final_Training/Images".format(cfg["data_root_path"]), annotations_path, "GTSRB_training.txt", "GTSRB_validation.txt")
+    generate_test_annotations("{}/GT-final_test.csv".format(cfg["data_root_path"]), "{}/GTSRB/Final_Test/Images".format(cfg["data_root_path"]), os.path.join(annotations_path, "GTSRB_test.txt"))
+
+    # write to config file
+    cfg["validation_annotation"] = os.path.join(annotations_path, "GTSRB_validation.txt")
+    cfg["train_annotation"] = os.path.join(annotations_path, "GTSRB_training.txt")
+    cfg["test_annotation"] = os.path.join(annotations_path, "GTSRB_test.txt")
+
+    save_config("../config/gtsrb.json", cfg)
 
 if __name__=="__main__":
     main()
